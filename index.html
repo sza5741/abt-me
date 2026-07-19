@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lala's Adventure: Special For Lutfi 💖</title>
+    <!-- NES.css untuk style retro 8-bit game -->
+    <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        /* CSS RESET & CUSTOM RETRO THEME */
+        * {
+            box-sizing: border-box;
+            image-rendering: pixelated;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', monospace;
+            background-color: #5c94fc; /* Warna Langit khas Mario */
+            background-image: 
+                radial-gradient(#ffffff 10%, transparent 10%),
+                radial-gradient(#ffffff 10%, transparent 10%);
+            background-size: 80px 80px;
+            background-position: 0 0, 40px 40px;
+            color: #212529;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 15px;
+        }
+
+        /* Hiasan background ala Mario */
+        .sky-decorations {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .pixel-cloud {
+            position: absolute;
+            background: white;
+            border: 4px solid #000;
+            border-radius: 8px;
+            opacity: 0.8;
+            animation: moveCloud 30s linear infinite;
+        }
+
+        .pixel-cloud::after, .pixel-cloud::before {
+            content: '';
+            position: absolute;
+            background: white;
+            border: 4px solid #000;
+        }
+
+        .cloud-1 {
+            width: 80px; height: 30px; top: 10%; left: -100px;
+            animation-duration: 40s;
+        }
+        .cloud-2 {
+            width: 120px; height: 40px; top: 25%; left: -150px;
+            animation-duration: 55s;
+            animation-delay: 10s;
+        }
+
+        @keyframes moveCloud {
+            0% { left: -150px; }
+            100% { left: 100%; }
+        }
+
+        /* CONTAINER GAME */
+        .game-wrapper {
+            width: 100%;
+            max-width: 600px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .nes-container.is-rounded {
+            background-color: #ffffff !important;
+            border-image-outset: 2;
+            box-shadow: 0 10px 0px rgba(0, 0, 0, 0.2);
+            padding: 25px 15px;
+        }
+
+        /* LAYOUT & SCENE CONTROL */
+        .scene {
+            display: none;
+        }
+
+        .scene.active {
+            display: block;
+        }
+
+        /* TYPOGRAPHY & BUTTON RESETS */
+        h1, h2, h3, p, span, button {
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .main-title {
+            font-size: 14px;
+            line-height: 1.8;
+            text-align: center;
+            color: #e76f51;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        .quiz-question {
+            font-size: 11px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border: 4px solid #212529;
+            border-radius: 4px;
+        }
+
+        /* OPTIONS LIST */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            min-height: 250px;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            font-size: 10px;
+            padding: 15px 10px;
+            line-height: 1.5;
+            transition: transform 0.1s ease;
+            white-space: normal;
+        }
+
+        /* KHUSUS UNTUK TOMBOL "NGGAK" YANG JAGO MENGHINDAR */
+        .option-btn.dodging {
+            position: absolute !important;
+            z-index: 999;
+            max-width: 90%;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 0 #000;
+        }
+
+        /* HEADER STATUS BAR */
+        .game-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #212529;
+            padding-bottom: 10px;
+        }
+
+        .status-item {
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* SURAT CINTA AKHIR */
+        .letter-content {
+            font-family: 'Fredoka One', cursive !important;
+            font-size: 15px;
+            line-height: 1.8;
+            text-align: left;
+            color: #4a4a4a;
+            max-height: 350px;
+            overflow-y: auto;
+            background: #fff0f3;
+            padding: 20px 15px;
+            border: 4px dashed #ffb3c6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .letter-content p {
+            font-family: 'Fredoka One', cursive !important;
+            margin-bottom: 15px;
+        }
+
+        .letter-title {
+            font-family: 'Fredoka One', cursive !important;
+            color: #ff477e;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* HEART FLOATER ANIMATION */
+        .heart-floater {
+            position: fixed;
+            bottom: -50px;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUp 4s linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-110vh) translateX(var(--random-x)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* SCROLLBAR CUSTOM */
+        .letter-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .letter-content::-webkit-scrollbar-track {
+            background: #ffe5ec;
+        }
+        .letter-content::-webkit-scrollbar-thumb {
+            background: #ffb3c6;
+            border-radius: 4px;
+        }
+
+        /* POP-UP WARNING */
+        .retro-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Awan-awan -->
+    <div class="sky-decorations">
+        <div class="pixel-cloud cloud-1"></div>
+        <div class="pixel-cloud cloud-2"></div>
+    </div>
+
+    <div class="game-wrapper">
+        <div class="nes-container is-rounded">
+
+            <!-- ================= SCENE 1: START SCREEN ================= -->
+            <div id="start-scene" class="scene active" style="text-align: center;">
+                <h1 class="main-title">LALA'S ADVENTURE<br><span style="color:#f8b800;">FOR LUTFI</span> 🌟</h1>
+                
+                <div style="margin: 25px 0;">
+                    <i class="nes-icon is-large heart"></i>
+                </div>
+                
+                <p style="font-size: 9px; line-height: 1.6; margin-bottom: 30px;">
+                    Hai Lutfi! Lala punya misi spesial buat kamu. Siap uji seberapa jauh kamu kenal Lala? 🕹️
+                </p>
+                
+                <button type="button" class="nes-btn is-success" onclick="startGame()" style="width: 100%; padding: 15px 0; font-size: 12px;">
+                    START GAME
+                </button>
+            </div>
+
+            <!-- ================= SCENE 2: QUIZ SCREEN ================= -->
+            <div id="quiz-scene" class="scene">
+                <!-- Status Bar ala Game -->
+                <div class="game-status-bar">
+                    <div class="status-item">
+                        <span>LIVES:</span>
+                        <i class="nes-icon heart is-small" id="heart-1"></i>
+                        <i class="nes-icon heart is-small" id="heart-2"></i>
+                        <i class="nes-icon heart is-small" id="heart-3"></i>
+                    </div>
+                    <div class="status-item">
+                        <span>COINS:</span>
+                        <i class="nes-icon coin is-small" style="margin-right: 3px;"></i>
+                        <span id="score-val" style="color:#f8b800;">00</span>
+                    </div>
+                </div>
+
+                <!-- Bagian Pertanyaan -->
+                <div class="quiz-question" id="question-box">
+                    Loading misi...
+                </div>
+
+                <!-- Pilihan Jawaban -->
+                <div class="options-list" id="options-box">
+                    <!-- Tombol pilihan akan dirender otomatis -->
+                </div>
+            </div>
+
+            <!-- ================= SCENE 3: FINAL LETTER SCREEN ================= -->
+            <div id="finish-scene" class="scene">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <i class="nes-icon trophy is-large"></i>
+                    <h2 style="font-size: 14px; margin-top: 15px; color: #475569;">STAGE CLEAR! 🎉</h2>
+                    <p style="font-size: 8px; color: #888;">Total Score kamu: <span id="final-coins" style="color:#f8b800; font-weight: bold;">0</span> Koin!</p>
+                </div>
+
+                <!-- Isi Surat yang Romantis -->
+                <div class="letter-content">
+                    <h3 class="letter-title">Sayangggg nyaaa lalaaaa... ❤️</h3>
+                    <p>Kalau nanti ada satu jawaban yang salah, jangan langsung mikir kamu gagal yaa. Quiz ini bukan buat nyari siapa yang paling sempurna, tapi cuma cara kecil lala buat lihat seberapa kita saling mengenal. Buat lala, yang paling penting bukan kamu hafal semua hal tentang lala, tapi kamu selalu mau belajar ngerti lala, dengerin lala, dan tetap milih buat bertahan sama lala.</p>
+                    
+                    <p>Makasih yaa udah jadi orang yang selalu ada buat lala. Makasih udah sabar sama sifat lala, sama overthinking lala, sama ngambeknya lala, sama semua versi lala. Mungkin kita belum bisa ketemu setiap hari, belum bisa jalan bareng atau peluk langsung. Tapi anehnya, kamu tetap bisa bikin lala ngerasa dicintai dari jarak sejauh apa pun.</p>
+                    
+                    <p>Kalau suatu hari nanti kamu lupa jawaban dari pertanyaan tentang lala, gak apa-apa. Yang lala harapin cuma satu: jangan pernah lupa kalau lala sayang sama kamu, dan lala selalu berharap kita bisa terus tumbuh, saling jaga, dan saling milih, setiap hari.</p>
+                    
+                    <p style="text-align: center; margin-top: 25px; color:#ff477e; font-size: 18px; font-weight: bold;">I love you, always. 🤍</p>
+                </div>
+
+                <button type="button" class="nes-btn is-primary" onclick="restartGame()" style="width: 100%; font-size: 10px;">
+                    MAIN LAGI 🔄
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Retro Pop-up Overlay & Dialog -->
+    <div class="overlay" id="overlay"></div>
+    <div class="nes-container is-rounded retro-popup" id="popup-box">
+        <p style="font-size: 10px; line-height: 1.8;" id="popup-message">Eits!</p>
+        <button class="nes-btn is-error" style="font-size: 8px; margin-top: 10px;" onclick="closePopup()">OK!</button>
+    </div>
+
+    <!-- AUDIO SYNTH ENGINE (BUAT SUARA RETRO NYATA) -->
+    <script>
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Fungsi pembuat bunyi bip retro game
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'start') {
+                // Suara Power up Mario
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'coin') {
+                // Suara Coin khas Mario (dua nada beruntun cepat)
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start();
+                
+                setTimeout(() => {
+                    osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime); // E6
+                }, 80);
+
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.stop(audioCtx.currentTime + 0.35);
+            } else if (type === 'wrong') {
+                // Suara buzzer gagal
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'dodge') {
+                // Bunyi swoosh lucu waktu menghindar
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'fanfare') {
+                // Suara kemenangan pendek
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const noteOsc = audioCtx.createOscillator();
+                    const noteGain = audioCtx.createGain();
+                    noteOsc.connect(noteGain);
+                    noteGain.connect(audioCtx.destination);
+                    noteOsc.type = 'square';
+                    noteOsc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.12));
+                    noteGain.gain.setValueAtTime(0.08, audioCtx.currentTime + (idx * 0.12));
+                    noteGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + (idx * 0.12) + 0.25);
+                    noteOsc.start(audioCtx.currentTime + (idx * 0.12));
+                    noteOsc.stop(audioCtx.currentTime + (idx * 0.12) + 0.25);
+                });
+            }
+        }
+    </script>
+
+    <!-- CORE GAME LOGIC -->
+    <script>
+        const quizData = [
+            {
+                question: "KAPAN TANGGAL JADIANNN KITA DI WAKTU WIB? 🗓️",
+                options: ["A. 28", "B. 30", "C. 29"],
+                correct: 2 // C
+            },
+            {
+                question: "Kata kata favorit lalaa kalau lagi ngomong? 🗣️",
+                options: ["A. ANJIR", "B. OMAK", "C. OHMYGODDDDD"],
+                correct: 2 // C
+            },
+            {
+                question: "Tanggal, bulan, tahun lahir lala kapan nih? 🎂",
+                options: ["A. 24 Maret 2012", "B. 25 Maret 2012", "C. 26 Maret 2012"],
+                correct: 1 // B
+            },
+            {
+                question: "Lala sayang ngga sih sebenernya sama lutfi?? 🤔❤️",
+                options: [
+                    "A. SAYANGGGGGG BANGETTTTT", 
+                    "B. sayangggg bangettt (gabisa dipencet)", 
+                    "C. Nggak (bikin gabisa dipencet dan bakal menghindar kalo dipencet)"
+                ],
+                correct: 0, // A
+                special: "sayang_lala"
+            },
+            {
+                question: "Lalaaa palingggg gasukaa kalau lutfii ngapain?? 😤",
+                options: ["A. Bohong", "B. Cuek + ilang tanpa kabar", "C. SEMUA BENAR"],
+                correct: 2 // C
+            },
+            {
+                question: "Kalo lalaa tiba-tiba bilang 'gapapa' artinya apa? 😶‍🌫️",
+                options: ["A. Beneran gapapa kok", "B. Kenapa napa, sedih, badmood", "C. Aman aja aman"],
+                correct: 1 // B
+            },
+            {
+                question: "Stiker WA yang paling sering lalaa pakaiiii apa sih?? 👾",
+                options: ["A. Angela", "B. Anak kecil", "C. Kucing"],
+                correct: [0, 1, 2] // Semua benar!
+            },
+            {
+                question: "Lalaaa kalau chat lebih sering ngetik yang mana? 💬",
+                options: [
+                    "A. 'iyaaaaa'", 
+                    "B. 'iyaaaaaa sayanggggg'", 
+                    "C. 'iyaaaaaaa sayanggggggggg iyaaaaaa'"
+                ],
+                correct: 1 // B
+            },
+            {
+                question: "Kalo lalaaa lagi call samaaaa kamuuu, lalaa lebih sering ngapain? 📞",
+                options: ["A. Ketawa", "B. Cerita random", "C. Cuek"],
+                correct: [0, 1] // A dan B benar!
+            },
+            {
+                question: "Kalo seandainya kitaa bisaa meet, kira-kira first time ketemu lala bakal ngelakuin apa? 🧸",
+                options: ["A. PELUKK", "B. KASIH GIFT", "C. SEMUA BENARR"],
+                correct: 2 // C
+            }
+        ];
+
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let lives = 3;
+
+        function startGame() {
+            playSound('start');
+            document.getElementById('start-scene').classList.remove('active');
+            document.getElementById('quiz-scene').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQuiz = quizData[currentQuestionIdx];
+            document.getElementById('score-val').innerText = score.toString().padStart(2, '0');
+            
+            // Set teks pertanyaan
+            document.getElementById('question-box').innerText = `${currentQuestionIdx + 1}. ${currentQuiz.question}`;
+            
+            const optionsBox = document.getElementById('options-box');
+            optionsBox.innerHTML = ''; // bersihkan pilihan sebelumnya
+
+            currentQuiz.options.forEach((optionText, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'nes-btn option-btn';
+                btn.innerText = optionText;
+
+                // Cek skenario spesial pertanyaan No 4
+                if (currentQuiz.special === "sayang_lala") {
+                    if (idx === 1) {
+                        // Opsi B: Gabisa dipencet sama sekali (disabled)
+                        btn.classList.add('is-disabled');
+                        btn.style.pointerEvents = 'none';
+                        btn.style.opacity = '0.5';
+                    } else if (idx === 2) {
+                        // Opsi C: Menghindar kalau disentuh / didekati cursor
+                        btn.classList.add('is-error', 'dodging');
+                        
+                        // Handler untuk PC (Hover) & Mobile (Touch)
+                        const dodgeAction = (e) => {
+                            e.preventDefault();
+                            playSound('dodge');
+                            
+                            const boxRect = optionsBox.getBoundingClientRect();
+                            const btnWidth = btn.offsetWidth;
+                            const btnHeight = btn.offsetHeight;
+
+                            // Cari koordinat random di dalam container pilihan jawaban agar tidak terpotong layar
+                            const randomX = Math.floor(Math.random() * (boxRect.width - btnWidth));
+                            const randomY = Math.floor(Math.random() * (boxRect.height - btnHeight));
+
+                            btn.style.left = `${randomX}px`;
+                            btn.style.top = `${randomY}px`;
+                        };
+
+                        btn.addEventListener('mouseover', dodgeAction);
+                        btn.addEventListener('touchstart', dodgeAction);
+                        btn.onclick = () => {
+                            showPopup("Hahaha! Gak boleh pilih ini! Aku tau aslinya kamu sayang banget 😜");
+                        };
+                    } else {
+                        btn.classList.add('is-primary');
+                        btn.onclick = () => selectAnswer(idx);
+                    }
+                } else {
+                    // Penampilan standar pilihan ganda
+                    if (idx === 0) btn.classList.add('is-primary');
+                    if (idx === 1) btn.classList.add('is-warning');
+                    if (idx === 2) btn.classList.add('is-success');
+                    
+                    btn.onclick = () => selectAnswer(idx);
+                }
+
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            const currentQuiz = quizData[currentQuestionIdx];
+            let isCorrect = false;
+
+            // Cek kondisi benar (bisa berupa angka tunggal, array opsi benar, atau multiopsi)
+            if (Array.isArray(currentQuiz.correct)) {
+                isCorrect = currentQuiz.correct.includes(selectedIndex);
+            } else {
+                isCorrect = (selectedIndex === currentQuiz.correct);
+            }
+
+            if (isCorrect) {
+                playSound('coin');
+                score += 10;
+                // Jalankan animasi koin berjatuhan kecil di layar
+                createHearts(3, '🪙');
+            } else {
+                playSound('wrong');
+                lives--;
+                updateHeartsVisual();
+                showPopup("Aduh, salah jawabannya! Hehehe gapapa kok tapi Lutfi sayang 😋");
+            }
+
+            // Lanjut ke nomor berikutnya
+            currentQuestionIdx++;
+
+            if (currentQuestionIdx < quizData.length && lives > 0) {
+                loadQuestion();
+            } else {
+                showFinishScreen();
+            }
+        }
+
+        function updateHeartsVisual() {
+            for (let i = 1; i <= 3; i++) {
+                const heartIcon = document.getElementById(`heart-${i}`);
+                if (i > lives) {
+                    heartIcon.classList.remove('heart');
+                    heartIcon.classList.add('heart', 'is-empty'); // ganti jadi hati kosong
+                }
+            }
+        }
+
+        function showFinishScreen() {
+            document.getElementById('quiz-scene').classList.remove('active');
+            document.getElementById('finish-scene').classList.add('active');
+            document.getElementById('final-coins').innerText = score;
+            playSound('fanfare');
+            // Hujan hati tak terbatas selama beberapa detik
+            setInterval(() => {
+                createHearts(1, '❤️');
+            }, 300);
+        }
+
+        // Fungsi pembuat efek hati/koin melayang
+        function createHearts(count, emoji = '❤️') {
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-floater';
+                heart.innerText = emoji;
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.setProperty('--random-x', (Math.random() * 200 - 100) + 'px');
+                heart.style.animationDelay = (Math.random() * 0.5) + 's';
+                document.body.appendChild(heart);
+                
+                // Hapus elemen setelah selesai animasi
+                setTimeout(() => heart.remove(), 4000);
+            }
+        }
+
+        // Popup kontrol retro
+        function showPopup(msg) {
+            document.getElementById('popup-message').innerText = msg;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('popup-box').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup-box').style.display = 'none';
+        }
+
+        function restartGame() {
+            currentQuestionIdx = 0;
+            score = 0;
+            lives = 3;
+            // Kembalikan visual hati
+            for (let i = 1; i <= 3; i++) {
+                const heartIcon = document.getElementById(`heart-${i}`);
+                heartIcon.className = 'nes-icon heart is-small';
+            }
+            document.getElementById('finish-scene').classList.remove('active');
+            startGame();
+        }
+    </script>
+</body>
+</html>
+``` eof
+
+---
+
+### 🎉 Cara Lala Menaruh Game Ini ke GitHub Lewat HP:
+
+1. **Salin Kode di atas:** Lala tinggal tekan tombol salin atau block seluruh kode HTML di atas dari ujung ke ujung.
+2. **Buka GitHub di Browser HP:**
+   * Masuk ke **[github.com](https://github.com/)** (pakai mode *Desktop Site* di Chrome HP biar lebih luas tampilannya kalau perlu).
+   * Klik ikon **"+"** di pojok kanan atas -> Pilih **"New Repository"**.
+   * Beri nama repositori bebas (contoh: `buat-lutfi-sayang`).
+   * Pastikan statusnya **Public**, lalu centang pilihan **"Add a README file"**, lalu klik **Create Repository**.
+3. **Buat File Baru di GitHub:**
+   * Di dalam repositori baru itu, klik tombol **"Add file"** -> pilih **"Create new file"**.
+   * Beri nama file wajib: `index.html` (harus huruf kecil semua).
+   * Ketuk kotak kodenya, lalu **Paste/Tempel** semua kode yang sudah dicopy di atas.
+   * Gulir ke bawah, klik tombol hijau **"Commit changes..."** dan konfirmasi simpan.
+4. **Aktifkan Link Website-nya:**
+   * Masuk ke menu **"Settings"** (biasanya di barisan tab atas).
+   * Cari menu **"Pages"** di bagian kiri.
+   * Di bawah menu **Branch**, ubah pilihan yang tadinya `None` menjadi `main` (atau `master`), lalu klik **"Save"**.
+   * Tunggu 1 menit, lalu segarkan (refresh) halamannya. Link game Lutfi akan muncul di kotak atas halaman Pages tersebut!
+
+Game web bertema retro Mario buatan Lala sudah siap dikirim ke Lutfi! Kabari aku ya kalau ada hal lain yang ingin kamu tambahkan agar gamenya makin spesial buat dia. 🥰
